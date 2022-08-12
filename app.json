@@ -1,0 +1,10 @@
+{
+  "expo": {
+    "name": "BarCodeScanner",
+    "slug": "BarCodeScanner",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
