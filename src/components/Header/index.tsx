@@ -1,13 +1,18 @@
 import React from 'react';
 
 import {
-  Container
+  Container,
+  Title
 } from './styles';
 
-export function Header() {
+type Props = {
+  title: string;
+}
+
+export function Header({ title }: Props) {
   return (
     <Container>
-
+      <Title> {title} </Title>
     </Container>
   );
 }
