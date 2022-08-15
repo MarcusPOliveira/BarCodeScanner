@@ -17,9 +17,10 @@ type Props = TouchableOpacityProps & {
   code: string;
   onCopyArea: () => void;
   onClear: () => void;
+  onAddCode: () => void;
 }
 
-export function BarCodeArea({ code, onClear, onCopyArea, ...rest }: Props) {
+export function BarCodeArea({ code, onClear, onAddCode, onCopyArea, ...rest }: Props) {
 
   const { colors } = useTheme();
 
@@ -32,7 +33,7 @@ export function BarCodeArea({ code, onClear, onCopyArea, ...rest }: Props) {
       </CopyArea>
       <Button
         title="Adicionar à lista"
-        {...rest}
+        onPress={onAddCode}
       />
       <ClearButton onPress={onClear}>
         <Feather name="x" size={24} color={colors.white} />

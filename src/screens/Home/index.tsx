@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, Modal, ToastAndroid } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
+import Clipboard from '@react-native-clipboard/clipboard';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import uuid from 'react-native-uuid';
 
 import { Header } from '../../components/Header';
+import { BarCodeArea } from '../../components/BarCodeArea';
 import {
   Container,
   ScannerContent,
   ModalContent
 } from './styles';
-import { BarCodeArea } from '../../components/BarCodeArea';
-import Clipboard from '@react-native-clipboard/clipboard';
 
 export function Home() {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
@@ -33,6 +35,31 @@ export function Home() {
   function copyBarCode() {
     Clipboard.setString(barCode);
     return ToastAndroid.show('Copiado para área de transferência!', ToastAndroid.LONG);
+  }
+
+  async function handleAddCodeToList() {
+    if (barCode) {
+      const addCode = {
+        id: String(uuid.v4()),
+        code: barCode
+      }
+      try {
+        const dataKey = `@barcodescanner:codes:${barCode}`;
+        const data = await AsyncStorage.getItem(dataKey);
+        const currentData = data ? JSON.parse(data) : [];
+        const formattedData = [
+          ...currentData,
+          addCode
+        ];
+        await AsyncStorage.setItem(dataKey, JSON.stringify(formattedData));
+        setBarCode('');
+        setScanning(false);
+        console.log('Código adicionar à lista =', barCode);
+        ToastAndroid.show('Código adicionado à lista com sucesso!', ToastAndroid.LONG);
+      } catch (error) {
+        console.log('algo deu errado', error)
+      }
+    }
   }
 
   function handleClearBarCode() {
@@ -73,6 +100,7 @@ export function Home() {
                 code={barCode}
                 onClear={handleClearBarCode}
                 onCopyArea={copyBarCode}
+                onAddCode={handleAddCodeToList}
               />
             </ModalContent>
           </Modal>
