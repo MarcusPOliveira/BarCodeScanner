@@ -13,14 +13,14 @@ import {
   ClearButton,
 } from './styles';
 
-type Props = TouchableOpacityProps & {
+type Props = {
   code: string;
   onCopyArea: () => void;
   onClear: () => void;
   onAddCode: () => void;
 }
 
-export function BarCodeArea({ code, onClear, onAddCode, onCopyArea, ...rest }: Props) {
+export function BarCodeArea({ code, onClear, onAddCode, onCopyArea }: Props) {
 
   const { colors } = useTheme();
 

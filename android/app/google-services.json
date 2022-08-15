@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "154800892585",
+    "project_id": "barcodescanner-6a2aa",
+    "storage_bucket": "barcodescanner-6a2aa.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:154800892585:android:d51cb444c8b77e1bb617b8",
+        "android_client_info": {
+          "package_name": "com.barcodescanner"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "154800892585-g3i0k2kt8me0v6rqlt266cp42g8bivc3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDfsYbWsx5cFDg4H1AIcJbknlY3L_YCe0Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "154800892585-g3i0k2kt8me0v6rqlt266cp42g8bivc3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
