@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, Modal, ToastAndroid } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import Clipboard from '@react-native-clipboard/clipboard';
@@ -12,6 +12,7 @@ import {
   ScannerContent,
   ModalContent
 } from './styles';
+import { useFocusEffect } from '@react-navigation/native';
 
 export function Home() {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
@@ -29,7 +30,7 @@ export function Home() {
   function onBarCodeScanned(payload: { type: string, data: string }) { //type = qrcode, code128, ean, etc, data = code
     setScanning(true);
     setBarCode(payload.data);
-    console.log(payload.data)
+    console.log(payload.data);
   }
 
   function copyBarCode() {
@@ -56,6 +57,10 @@ export function Home() {
         })
     }
   }
+
+  useFocusEffect(useCallback(() => {
+
+  }, [onBarCodeScanned]));
 
   function handleClearBarCode() {
     setBarCode('');

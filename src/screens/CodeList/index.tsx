@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { FlatList } from 'react-native';
+import { Alert, FlatList, ToastAndroid } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Feather } from '@expo/vector-icons';
@@ -13,6 +13,9 @@ import { CodeCard } from '../../components/CodeCard';
 import {
   Container,
   Content,
+  TitleWrapper,
+  Title,
+  ListLenght,
   ListWrapper,
   ClearButton
 } from './styles';
@@ -39,9 +42,29 @@ export function CodeList() {
       })
   }
 
+  async function handleDeleteCodeList(path: string) {
+    const ref = firestore().collection(path);
+    ref.onSnapshot((snapshot) => {
+      snapshot.docs.forEach((doc) => {
+        ref.doc(doc.id).delete()
+      })
+    });
+    // firestore()
+    //   .collection('products')
+    //   .doc('')
+    //   .delete()
+    //   .then(() => {
+    //     ToastAndroid.show('Lista de Códigos deletada com sucesso!', ToastAndroid.LONG);
+    //   })
+    //   .catch((error) => {
+    //     console.log(error);
+    //     Alert.alert('Opa, ', 'algo deu errado!');
+    //   });
+  }
+
   useFocusEffect(useCallback(() => {
     fetchCodes('');
-  }, []));
+  }, [fetchCodes]));
 
   return (
     <Container>
@@ -51,23 +74,29 @@ export function CodeList() {
           isLoading
             ? <Load />
             :
-            <ListWrapper>
-              <FlatList
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{
-                  flex: 1,
-                }}
-                data={codes}
-                keyExtractor={item => item.id}
-                renderItem={({ item }) => (
-                  <CodeCard
-                    code={item.code}
-                  />
-                )}
-              />
-            </ListWrapper>
+            <>
+              <TitleWrapper>
+                <Title>Toque para Favoritar</Title>
+                <ListLenght>{codes.length} códigos</ListLenght>
+              </TitleWrapper>
+              <ListWrapper>
+                <FlatList
+                  showsVerticalScrollIndicator={false}
+                  contentContainerStyle={{
+                    flex: 1,
+                  }}
+                  data={codes}
+                  keyExtractor={item => item.id}
+                  renderItem={({ item }) => (
+                    <CodeCard
+                      code={item.code}
+                    />
+                  )}
+                />
+              </ListWrapper>
+            </>
         }
-        <ClearButton>
+        <ClearButton onPress={() => handleDeleteCodeList('products')} >
           <Feather name="x" size={24} color={colors.white} />
         </ClearButton>
       </Content>
