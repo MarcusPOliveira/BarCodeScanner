@@ -3,6 +3,7 @@ import { Alert, Modal, ToastAndroid } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import Clipboard from '@react-native-clipboard/clipboard';
 import firestore from '@react-native-firebase/firestore';
+import uuid from 'react-native-uuid';
 
 import { Header } from '../../components/Header';
 import { BarCodeArea } from '../../components/BarCodeArea';
@@ -11,11 +12,6 @@ import {
   ScannerContent,
   ModalContent
 } from './styles';
-
-type Code = {
-  id: string;
-  code: string;
-}
 
 export function Home() {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
@@ -48,7 +44,7 @@ export function Home() {
       firestore()
         .collection('products')
         .add({
-          id: firestore.Timestamp,
+          id: uuid.v4(),
           code: barCode
         })
         .then(() => {

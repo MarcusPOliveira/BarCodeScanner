@@ -1,17 +1,18 @@
 import React from 'react';
+import { TouchableOpacityProps } from 'react-native';
 
 import {
   Container,
   CodeLabel
 } from './styles';
 
-type Props = {
+type CodeProps = TouchableOpacityProps & {
   code: string;
 }
 
-export function CodeCard({ code }: Props) {
+export function CodeCard({ code, ...rest }: CodeProps) {
   return (
-    <Container>
+    <Container {...rest}>
       <CodeLabel> {code} </CodeLabel>
     </Container>
   );

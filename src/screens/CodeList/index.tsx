@@ -13,6 +13,7 @@ import { CodeCard } from '../../components/CodeCard';
 import {
   Container,
   Content,
+  ListWrapper,
   ClearButton
 } from './styles';
 
@@ -34,6 +35,7 @@ export function CodeList() {
           }
         });
         console.log(data);
+        setCodes(data);
       })
   }
 
@@ -49,7 +51,21 @@ export function CodeList() {
           isLoading
             ? <Load />
             :
-            <CodeCard code='12487198247' />
+            <ListWrapper>
+              <FlatList
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{
+                  flex: 1,
+                }}
+                data={codes}
+                keyExtractor={item => item.id}
+                renderItem={({ item }) => (
+                  <CodeCard
+                    code={item.code}
+                  />
+                )}
+              />
+            </ListWrapper>
         }
         <ClearButton>
           <Feather name="x" size={24} color={colors.white} />
