@@ -4,6 +4,7 @@ import { BarCodeScanner } from 'expo-barcode-scanner';
 import Clipboard from '@react-native-clipboard/clipboard';
 import firestore from '@react-native-firebase/firestore';
 import uuid from 'react-native-uuid';
+import { useIsFocused } from '@react-navigation/native';
 
 import { Header } from '../../components/Header';
 import { BarCodeArea } from '../../components/BarCodeArea';
@@ -19,6 +20,8 @@ export function Home() {
   const [scanning, setScanning] = useState(false);
   const [barCode, setBarCode] = useState('');
 
+  const isFocused = useIsFocused();
+
   useEffect(() => {
     const askForPermissions = async () => {
       const { status } = await BarCodeScanner.requestPermissionsAsync();
@@ -31,6 +34,7 @@ export function Home() {
     setScanning(true);
     setBarCode(payload.data);
     console.log(payload.data);
+    console.log('scaneando');
   }
 
   function copyBarCode() {
@@ -50,17 +54,14 @@ export function Home() {
         })
         .then(() => {
           ToastAndroid.show('Adicionado à lista com sucesso!', ToastAndroid.LONG);
+          setScanning(false);
         })
         .catch(error => {
           console.log(error);
           Alert.alert('Opa,', 'não foi possível adicionar à lista!');
-        })
+        });
     }
   }
-
-  useFocusEffect(useCallback(() => {
-
-  }, [onBarCodeScanned]));
 
   function handleClearBarCode() {
     setBarCode('');
@@ -79,14 +80,18 @@ export function Home() {
     <Container>
       <Header title='Easy BarCode Scanner' />
       <ScannerContent>
-        <BarCodeScanner
-          onBarCodeScanned={onBarCodeScanned}
-          style={{
-            width: '100%',
-            height: 500,
-            flex: 1,
-          }}
-        />
+        {
+          isFocused ? (
+            <BarCodeScanner
+              onBarCodeScanned={onBarCodeScanned}
+              style={{
+                width: '100%',
+                height: 500,
+                flex: 1,
+              }}
+            />
+          ) : null
+        }
       </ScannerContent>
       {
         scanning && (

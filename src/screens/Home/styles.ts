@@ -9,7 +9,6 @@ export const Container = styled.View`
 export const ScannerContent = styled.View`
   width: 100%;
   height: 90%;
-  overflow: hidden;
 `;
 
 export const ModalContent = styled.View`
