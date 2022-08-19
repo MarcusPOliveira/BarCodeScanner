@@ -26,7 +26,8 @@ export function CodeList() {
 
   const { colors } = useTheme();
 
-  async function fetchCodes(value: string) {
+  async function fetchCodes() {
+    setIsLoading(true);
     firestore()
       .collection('products')
       .get()
@@ -37,18 +38,24 @@ export function CodeList() {
             ...doc.data(),
           }
         });
-        console.log(data);
         setCodes(data);
+        setIsLoading(false);
       })
   }
 
-  async function handleDeleteCodeList(path: string) {
+  async function handleDeleteCode() {
+    //implementar exclusão clicando no card
+    //console.log('deletar: ', id)
+  }
+
+  async function handleDeleteAllCodes(path: string) {
     const ref = firestore().collection(path);
     ref.onSnapshot((snapshot) => {
       snapshot.docs.forEach((doc) => {
-        ref.doc(doc.id).delete()
-      })
+        ref.doc(doc.id).delete();
+      });
     });
+    ToastAndroid.show('Lista deletada com sucesso!', ToastAndroid.LONG);
     // firestore()
     //   .collection('products')
     //   .doc('')
@@ -64,6 +71,7 @@ export function CodeList() {
 
   useFocusEffect(useCallback(() => {
     fetchCodes('');
+    setIsLoading(false);
   }, [fetchCodes]));
 
   return (
@@ -76,7 +84,7 @@ export function CodeList() {
             :
             <>
               <TitleWrapper>
-                <Title>Toque para Favoritar</Title>
+                <Title>Toque para Deletar</Title>
                 <ListLenght>{codes.length} códigos</ListLenght>
               </TitleWrapper>
               <ListWrapper>
@@ -89,6 +97,7 @@ export function CodeList() {
                   keyExtractor={item => item.id}
                   renderItem={({ item }) => (
                     <CodeCard
+                      onPress={handleDeleteCode}
                       code={item.code}
                     />
                   )}
@@ -96,7 +105,7 @@ export function CodeList() {
               </ListWrapper>
             </>
         }
-        <ClearButton onPress={() => handleDeleteCodeList('products')} >
+        <ClearButton onPress={() => handleDeleteAllCodes('products')} >
           <Feather name="x" size={24} color={colors.white} />
         </ClearButton>
       </Content>

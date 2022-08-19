@@ -18,9 +18,10 @@ type Props = {
   onCopyArea: () => void;
   onClear: () => void;
   onAddCode: () => void;
+  isLoading: boolean;
 }
 
-export function BarCodeArea({ code, onClear, onAddCode, onCopyArea }: Props) {
+export function BarCodeArea({ code, onClear, onAddCode, onCopyArea, isLoading }: Props) {
 
   const { colors } = useTheme();
 
@@ -34,6 +35,7 @@ export function BarCodeArea({ code, onClear, onAddCode, onCopyArea }: Props) {
       <Button
         title="Adicionar à lista"
         onPress={onAddCode}
+        isLoading={isLoading}
       />
       <ClearButton onPress={onClear}>
         <Feather name="x" size={24} color={colors.white} />

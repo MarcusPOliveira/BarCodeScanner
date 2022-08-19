@@ -1,6 +1,8 @@
 import React from 'react';
 import { TouchableOpacityProps } from 'react-native';
+import { useTheme } from 'styled-components/native';
 
+import { Load } from '../Load';
 import {
   Container,
   Title
@@ -8,12 +10,21 @@ import {
 
 type Props = TouchableOpacityProps & {
   title: string;
+  isLoading: boolean;
 }
 
-export function Button({ title, ...rest }: Props) {
+export function Button({ title, isLoading, ...rest }: Props) {
+
+  const { colors } = useTheme();
+
   return (
     <Container {...rest}>
-      <Title>{title}</Title>
+      {
+        isLoading
+          ? <Load color={colors.white} />
+          : <Title>{title}</Title>
+      }
+
     </Container>
   );
 }

@@ -1,10 +1,11 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { Alert, Modal, ToastAndroid } from 'react-native';
-import { BarCodeScanner } from 'expo-barcode-scanner';
+import React, { useEffect, useState } from 'react';
+import { Alert, Dimensions, Modal, StyleSheet, ToastAndroid } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import firestore from '@react-native-firebase/firestore';
+import { BarCodeScanner, BarCodeScannerResult } from 'expo-barcode-scanner';
+import BarcodeMask from 'react-native-barcode-mask';
 import uuid from 'react-native-uuid';
-import { useIsFocused } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 
 import { Header } from '../../components/Header';
 import { BarCodeArea } from '../../components/BarCodeArea';
@@ -13,28 +14,53 @@ import {
   ScannerContent,
   ModalContent
 } from './styles';
-import { useFocusEffect } from '@react-navigation/native';
+import { useTheme } from 'styled-components/native';
+
+//constants
+const finderWidth: number = 280;
+const finderHeight: number = 230;
+const width = Dimensions.get('window').width;
+const height = Dimensions.get('window').height;
+const viewMinX = (width - finderWidth) / 2;
+const viewMinY = (height - finderHeight) / 2;
 
 export function Home() {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [scanning, setScanning] = useState(false);
   const [barCode, setBarCode] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const isFocused = useIsFocused();
+  const navigation = useNavigation();
+  const { colors } = useTheme();
 
   useEffect(() => {
-    const askForPermissions = async () => {
-      const { status } = await BarCodeScanner.requestPermissionsAsync();
-      setHasPermission(status === 'granted');
-    }
-    askForPermissions();
-  }, []);
+    const unsubscribe = navigation.addListener('focus', () => {
+      const askForPermissions = async () => {
+        const { status } = await BarCodeScanner.requestPermissionsAsync();
+        setHasPermission(status === 'granted');
+      }
+      askForPermissions();
+      setScanning(false);
+      setBarCode('');
+    });
 
-  function onBarCodeScanned(payload: { type: string, data: string }) { //type = qrcode, code128, ean, etc, data = code
-    setScanning(true);
-    setBarCode(payload.data);
-    console.log(payload.data);
-    console.log('scaneando');
+    return unsubscribe;
+
+  }, [navigation]);
+
+  function onBarCodeScanned(scanningResult: BarCodeScannerResult) { //type = qrcode, code128, ean, etc, data = code
+    if (!scanning) {
+      const { type, data, bounds: { origin } = {} } = scanningResult;
+      const { x, y } = origin;
+      if (x >= viewMinX && y >= viewMinY && x <= (viewMinX + finderWidth / 2) && y <= (viewMinY + finderHeight / 2)) {
+        setScanning(true);
+        console.log("Tipo: ", type, " - Código: ", data);
+        setBarCode(data);
+      }
+    } else {
+      console.log('erro')
+    }
   }
 
   function copyBarCode() {
@@ -46,7 +72,8 @@ export function Home() {
     if (!barCode) {
       return Alert.alert('Opa,', 'nenhum código selecionado');
     } else {
-      firestore()
+      setIsLoading(true);
+      await firestore()
         .collection('products')
         .add({
           id: uuid.v4(),
@@ -55,10 +82,12 @@ export function Home() {
         .then(() => {
           ToastAndroid.show('Adicionado à lista com sucesso!', ToastAndroid.LONG);
           setScanning(false);
+          setIsLoading(false);
         })
         .catch(error => {
           console.log(error);
           Alert.alert('Opa,', 'não foi possível adicionar à lista!');
+          setIsLoading(false);
         });
     }
   }
@@ -82,13 +111,58 @@ export function Home() {
       <ScannerContent>
         {
           isFocused ? (
+            <>
+              <BarCodeScanner
+                onBarCodeScanned={onBarCodeScanned}
+                style={[StyleSheet.absoluteFillObject, styles.scanner]}
+              >
+                <BarcodeMask edgeColor={colors.primary} />
+              </BarCodeScanner>
+            </>
+          ) : null
+        }
+      </ScannerContent>
+      {
+        scanning && (
+          <Modal
+            style={{ width: '100%', height: '50%', justifyContent: 'flex-end', margin: 0 }}
+            animationType="slide"
+            transparent
+          >
+            <ModalContent>
+              <BarCodeArea
+                code={barCode}
+                onClear={handleClearBarCode}
+                onCopyArea={copyBarCode}
+                onAddCode={handleAddCodeToList}
+                isLoading={isLoading}
+              />
+            </ModalContent>
+          </Modal>
+        )
+      }
+    </Container>
+  );
+}
+
+const styles = StyleSheet.create({
+  scanner: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center'
+  }
+});
+
+/*
+  return (
+    <Container>
+      <Header title='Easy BarCode Scanner' />
+      <ScannerContent>
+        {
+          isFocused ? (
             <BarCodeScanner
               onBarCodeScanned={onBarCodeScanned}
-              style={{
-                width: '100%',
-                height: 500,
-                flex: 1,
-              }}
+              style={[StyleSheet.absoluteFillObject, styles.scanner]}
             />
           ) : null
         }
@@ -106,6 +180,7 @@ export function Home() {
                 onClear={handleClearBarCode}
                 onCopyArea={copyBarCode}
                 onAddCode={handleAddCodeToList}
+                isLoading={isLoading}
               />
             </ModalContent>
           </Modal>
@@ -113,4 +188,4 @@ export function Home() {
       }
     </Container>
   );
-}
+*/
